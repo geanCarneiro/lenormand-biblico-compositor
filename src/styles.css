@@ -99,6 +99,10 @@ button:disabled { cursor: wait; opacity: .56; }
 .frame-placeholder span { font-size: 24px; }
 .frame-placeholder small { font-size: 6px; }
 .full-width { width: 100%; }
+.frame-load-actions { display: flex; gap: 7px; }
+.frame-load-actions .button:first-child { flex: 1; }
+.frame-candidate-picker { display: grid; gap: 9px; margin-top: 13px; padding-top: 11px; border-top: 1px solid var(--line); }
+.frame-candidate-picker .field select { height: 36px; background: #fffefa; border: 1px solid #e4dfd6; border-radius: 4px; padding: 0 9px; color: #514a40; font-size: 10px; }
 .micro-note { text-align: center; color: #a0988b; font-size: 8px; margin: 8px 0 0; }
 .range-label { display: flex; justify-content: space-between; color: #736b60; font-size: 10px; margin-top: 17px; }
 .range-label b { font-size: 10px; font-weight: 500; color: #514537; }

@@ -1,4 +1,8 @@
 import type { CardTemplate } from './types';
+import frameManifestSource from './data/moldura_provisoria.json';
+import { validateFrameTextManifest } from './lib/frameManifest';
+
+export const DEFAULT_FRAME_TEXT_MANIFEST = validateFrameTextManifest(frameManifestSource);
 
 /**
  * PROVISÓRIO: coordenadas visuais de trabalho, não aprovadas e sem dimensão
@@ -6,10 +10,11 @@ import type { CardTemplate } from './types';
  * a máscara externa arredondada é aplicada por último na composição.
  */
 export const CARD_TEMPLATE: CardTemplate = {
-  version: 'provisional-3-rounded-mask-v1',
+  version: 'provisional-4-frame-manifest-v1',
   provisional: true,
   canvas: { width: 750, height: 1125 },
   framePath: '/template/moldura-provisoria.png',
+  defaultTextManifestPath: '/template/moldura-provisoria.json',
   outerMask: { version: 'rounded-2-3-r48-v1', path: '/template/mask-rounded-2-3-r48-v1.png', radiusPx: 48 },
   illustration: { x: 74, y: 120, width: 602, height: 696 },
   text: {

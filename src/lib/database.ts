@@ -34,6 +34,7 @@ export function createEmptyProject(): ProjectDocument {
     schemaVersion: 1,
     templateVersion: CARD_TEMPLATE.version,
     frameAssetId: null,
+    frameManifestAssetId: null,
     cards,
     updatedAt: new Date().toISOString(),
   };

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "metadata": {
+    "frameId": "moldura-provisoria",
+    "version": "1.0.0",
+    "status": "provisional"
+  },
+  "textRegions": {
+    "number": {
+      "x": 0.42,
+      "y": 0.0584,
+      "width": 0.16,
+      "height": 0.0533,
+      "style": {
+        "fontFamily": "Georgia, serif",
+        "fontSize": 0.045333,
+        "fontWeight": "700",
+        "fontStyle": "normal",
+        "color": "#33291f",
+        "textAlign": "center",
+        "verticalAlign": "middle",
+        "lineHeight": 1.2,
+        "letterSpacing": "0px"
+      }
+    },
+    "title": {
+      "x": 0.1333,
+      "y": 0.7533,
+      "width": 0.7333,
+      "height": 0.0533,
+      "style": {
+        "fontFamily": "Georgia, serif",
+        "fontSize": 0.056,
+        "fontWeight": "700",
+        "fontStyle": "normal",
+        "color": "#33291f",
+        "textAlign": "center",
+        "verticalAlign": "middle",
+        "lineHeight": 1.2,
+        "letterSpacing": "0px"
+      }
+    },
+    "reference": {
+      "x": 0.1467,
+      "y": 0.8194,
+      "width": 0.7067,
+      "height": 0.0444,
+      "style": {
+        "fontFamily": "Georgia, serif",
+        "fontSize": 0.032,
+        "fontWeight": "400",
+        "fontStyle": "italic",
+        "color": "#57483a",
+        "textAlign": "center",
+        "verticalAlign": "middle",
+        "lineHeight": 1.2,
+        "letterSpacing": "0px"
+      }
+    }
+  }
+}

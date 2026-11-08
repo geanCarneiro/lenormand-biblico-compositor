@@ -31,6 +31,7 @@ export function normalizeProject(input: ProjectDocument): ProjectDocument {
     schemaVersion: 1,
     templateVersion: typeof input.templateVersion === 'string' ? input.templateVersion : CARD_TEMPLATE.version,
     frameAssetId: typeof input.frameAssetId === 'string' ? input.frameAssetId : null,
+    frameManifestAssetId: typeof input.frameAssetId === 'string' && typeof input.frameManifestAssetId === 'string' ? input.frameManifestAssetId : null,
     cards,
     updatedAt: typeof input.updatedAt === 'string' ? input.updatedAt : new Date().toISOString(),
   };

@@ -2,6 +2,7 @@ import JSZip from 'jszip';
 import { cardCatalog } from '../data/cards';
 import { CARD_TEMPLATE } from '../template';
 import { normalizeProject } from './normalizeProject';
+import { parseFrameTextManifestBlob } from './frameManifest';
 import type { ProjectDocument, StoredAsset } from '../types';
 
 const MAX_ARCHIVE_BYTES = 220 * 1024 * 1024;
@@ -12,7 +13,7 @@ interface AssetManifest {
   id: string;
   filename: string;
   mimeType: string;
-  role: 'frame' | 'illustration';
+  role: StoredAsset['role'];
   createdAt: string;
   path: string;
 }
@@ -67,6 +68,7 @@ export async function importProjectZip(file: Blob): Promise<{ project: ProjectDo
     if (blob.type && blob.type !== asset.mimeType) throw new Error(`Tipo de arquivo inconsistente: ${asset.filename}`);
     assets.push({ id: asset.id, filename: asset.filename, mimeType: asset.mimeType, role: asset.role, createdAt: asset.createdAt, blob: new Blob([blob], { type: asset.mimeType }) });
   }
+  await validateProjectFrameManifest(manifest.project, assets);
   return { project: normalizeProject(manifest.project), assets };
 }
 
@@ -77,23 +79,27 @@ function validateManifest(value: unknown): ArchiveManifest {
   if (typeof value.templateVersion !== 'string' || !isProject(value.project)) throw new Error('Dados do projeto inválidos.');
   if (value.project.schemaVersion !== 1 || value.project.id !== 'lenormand-biblico-local-project') throw new Error('Versão ou identificador do projeto incompatível.');
   const assets = value.assets;
-  if (assets.length > 37) throw new Error('O projeto contém recursos demais.');
+  if (assets.length > 38) throw new Error('O projeto contém recursos demais.');
   const ids = new Set<string>();
   for (const item of assets) {
     if (!isRecord(item) || typeof item.id !== 'string' || !item.id || ids.has(item.id)
       || typeof item.filename !== 'string' || typeof item.mimeType !== 'string'
-      || !['frame', 'illustration'].includes(String(item.role)) || typeof item.createdAt !== 'string'
+      || !['frame', 'frame-manifest', 'illustration'].includes(String(item.role)) || typeof item.createdAt !== 'string'
       || typeof item.path !== 'string' || item.path !== `assets/${encodeURIComponent(item.id)}`) {
       throw new Error('Metadados de recurso inválidos no manifesto.');
     }
     ids.add(item.id);
     if (item.role === 'frame' && item.mimeType !== 'image/png') throw new Error('A moldura do projeto deve ser PNG.');
+    if (item.role === 'frame-manifest' && !['application/json', 'text/json'].includes(item.mimeType)) throw new Error('O manifesto da moldura deve ser JSON.');
     if (item.role === 'illustration' && !['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(item.mimeType)) throw new Error('Tipo de ilustração não permitido.');
   }
   const project = value.project;
   if (project.templateVersion !== value.templateVersion) throw new Error('Versões de template inconsistentes no manifesto.');
   if (project.frameAssetId && !ids.has(project.frameAssetId)) throw new Error('A moldura referenciada não está no ZIP.');
   if (project.frameAssetId && !assets.some((asset) => isRecord(asset) && asset.id === project.frameAssetId && asset.role === 'frame')) throw new Error('O recurso de moldura está marcado incorretamente.');
+  if (project.frameManifestAssetId && !ids.has(project.frameManifestAssetId)) throw new Error('O manifesto da moldura não está no ZIP.');
+  if (project.frameManifestAssetId && !assets.some((asset) => isRecord(asset) && asset.id === project.frameManifestAssetId && asset.role === 'frame-manifest')) throw new Error('O recurso de manifesto está marcado incorretamente.');
+  if (project.frameManifestAssetId && !project.frameAssetId) throw new Error('O manifesto está sem uma moldura associada.');
   const catalogIds = new Set(cardCatalog.map((card) => card.id));
   if (Object.keys(project.cards).length !== 36) throw new Error('O projeto precisa conter as 36 cartas.');
   for (const [id, card] of Object.entries(project.cards)) {
@@ -109,6 +115,24 @@ function validateManifest(value: unknown): ArchiveManifest {
     if (typeof card.illustrationAssetId === 'string' && !assets.some((asset) => isRecord(asset) && asset.id === card.illustrationAssetId && asset.role === 'illustration')) throw new Error(`Recurso de ilustração inválido na carta ${id}.`);
   }
   return value as unknown as ArchiveManifest;
+}
+
+async function validateProjectFrameManifest(project: ProjectDocument, assets: StoredAsset[]): Promise<void> {
+  if (!project.frameManifestAssetId) return;
+  const frame = assets.find((asset) => asset.id === project.frameAssetId);
+  const manifest = assets.find((asset) => asset.id === project.frameManifestAssetId);
+  if (!frame || !manifest) throw new Error('Moldura ou manifesto associado ausente no arquivo do projeto.');
+  if (baseName(frame.filename) !== baseName(manifest.filename)) throw new Error('O manifesto da moldura precisa ter o mesmo nome-base do PNG.');
+  try {
+    await parseFrameTextManifestBlob(manifest.blob);
+  } catch (cause) {
+    if (cause instanceof Error && cause.message.startsWith('Manifesto')) throw cause;
+    throw new Error(`Manifesto da moldura inválido: ${cause instanceof Error ? cause.message : 'JSON inválido.'}`);
+  }
+}
+
+function baseName(filename: string): string {
+  return filename.replace(/\.[^.]+$/, '');
 }
 
 function isProject(value: unknown): value is ProjectDocument {

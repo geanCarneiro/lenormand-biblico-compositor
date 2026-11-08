@@ -21,11 +21,11 @@ npm run build
 npm run preview
 ```
 
-Os dados e arquivos ficam no IndexedDB do navegador atual. Limpar os dados do site remove a cópia local; use **Exportar projeto** para criar um arquivo de segurança ZIP. O ZIP contém `manifest.json`, a moldura, ilustrações, metadados, transformações e a versão do template. A importação verifica o manifesto e os arquivos antes de gravar o novo projeto.
+Os dados e arquivos ficam no IndexedDB do navegador atual. Limpar os dados do site remove a cópia local; use **Exportar projeto** para criar um arquivo de segurança ZIP. O ZIP contém `manifest.json`, a moldura e seu sidecar JSON, ilustrações, metadados, transformações e a versão do template. A importação verifica os manifestos e os arquivos antes de gravar o novo projeto.
 
 ## Fluxo
 
-1. Carregue uma moldura PNG transparente no painel **Moldura do baralho**. A mesma moldura é aplicada ao canvas completo em todas as cartas.
+1. Carregue uma moldura PNG transparente no painel **Moldura do baralho**. Selecione o JSON homônimo junto dela ou use **Ler pasta** para localizar o sidecar automaticamente. A mesma moldura é aplicada ao canvas completo em todas as cartas.
 2. Selecione uma carta na lista horizontal/lateral e carregue sua ilustração.
 3. Reposicione arrastando a imagem na prévia ou use zoom e setas. O recorte é limitado à região de ilustração.
 4. Edite título e referência; as referências começam com status **Pendente** para evitar dados bíblicos não verificados.
@@ -37,6 +37,8 @@ Cartas marcadas como **Aprovada** não aceitam substituição de ilustração at
 
 `src/template.ts` contém a resolução de trabalho (750 × 1125 px, proporção 2:3), a região da imagem, as coordenadas de texto, fontes, cores, limites de largura e a versão/caminho da máscara alfa externa. A máscara fixa `rounded-2-3-r48-v1` é aplicada após imagem, moldura e textos, preservando transparência real nos cantos arredondados. Esses pixels são valores provisórios para desenvolvimento e **não representam dimensões físicas de impressão nem aprovação visual**. `public/template/moldura-provisoria.png` é apenas uma guia geométrica simples. Ajuste o template com a moldura definitiva e aprovação visual antes de produzir cartas finais.
 
+O formato dos sidecars JSON está documentado em [docs/frame-manifesto.md](docs/frame-manifesto.md). Sem manifesto ou com JSON inválido, a moldura continua carregada e usa o estilo legado do template; a aplicação mostra um diagnóstico.
+
 ## Testes
 
 ```bash
@@ -44,4 +46,4 @@ npm test
 npm run build
 ```
 
-Os testes cobrem cálculo de recorte, validação de arquivos e coordenadas, composição/exportação PNG, validação e round-trip do ZIP e persistência IndexedDB.
+Os testes cobrem cálculo de recorte, validação de manifestos e coordenadas, composição/exportação PNG, validação e round-trip do ZIP e persistência IndexedDB.

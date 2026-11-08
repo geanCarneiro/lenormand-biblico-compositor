@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type PointerEvent } from 'react';
 import { cardCatalog } from './data/cards';
-import { CARD_TEMPLATE } from './template';
-import type { CardData, ProjectDocument, StoredAsset } from './types';
+import { CARD_TEMPLATE, DEFAULT_FRAME_TEXT_MANIFEST } from './template';
+import type { CardData, FrameTextManifest, ProjectDocument, StoredAsset } from './types';
 import { deleteAsset, getAsset, loadProject, replaceProjectAndAssets, saveAsset, saveProject } from './lib/database';
 import { exportCardPng, composeCard } from './lib/renderer';
 import { imageFromBlob, validateImageFile } from './lib/files';
 import { matchesAspectRatio } from './lib/geometry';
+import { getFrameCandidates, getFrameSidecarName, type FrameCandidate } from './lib/frameFiles';
 import { exportProjectZip, importProjectZip, isKnownTemplateVersion } from './lib/projectArchive';
+import { parseFrameTextManifestBlob } from './lib/frameManifest';
 
 const displayNumber = (number: number) => String(number).padStart(2, '0');
 
@@ -14,6 +16,9 @@ export default function App() {
   const [project, setProject] = useState<ProjectDocument | null>(null);
   const [selectedId, setSelectedId] = useState('lenormand-08');
   const [frameBlob, setFrameBlob] = useState<Blob | null>(null);
+  const [frameTextManifest, setFrameTextManifest] = useState<FrameTextManifest | null>(null);
+  const [frameCandidates, setFrameCandidates] = useState<FrameCandidate[]>([]);
+  const [selectedFrameCandidateId, setSelectedFrameCandidateId] = useState('');
   const [illustrationBlob, setIllustrationBlob] = useState<Blob | null>(null);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
@@ -24,6 +29,7 @@ export default function App() {
   const dragOrigin = useRef<{ x: number; y: number; transformX: number; transformY: number } | null>(null);
   const importInputRef = useRef<HTMLInputElement>(null);
   const frameInputRef = useRef<HTMLInputElement>(null);
+  const frameFolderInputRef = useRef<HTMLInputElement>(null);
   const illustrationInputRef = useRef<HTMLInputElement>(null);
 
   const selectedCard = project?.cards[selectedId];
@@ -37,12 +43,24 @@ export default function App() {
       try {
         const saved = await loadProject();
         const savedFrame = saved.frameAssetId ? await getAsset(saved.frameAssetId) : undefined;
+        const savedFrameManifest = saved.frameManifestAssetId ? await getAsset(saved.frameManifestAssetId) : undefined;
         const savedIllustration = saved.cards['lenormand-08']?.illustrationAssetId
           ? await getAsset(saved.cards['lenormand-08'].illustrationAssetId!) : undefined;
+        let loadedTextManifest: FrameTextManifest | null = saved.frameAssetId ? null : DEFAULT_FRAME_TEXT_MANIFEST;
+        let manifestWarning = '';
+        if (saved.frameManifestAssetId) {
+          if (!savedFrameManifest) manifestWarning = 'O manifesto salvo para esta moldura não foi encontrado; usando a tipografia legada.';
+          else {
+            try { loadedTextManifest = await readFrameManifest(savedFrameManifest.blob); }
+            catch (cause) { manifestWarning = `Manifesto da moldura inválido: ${messageOf(cause)}. Usando a tipografia legada.`; }
+          }
+        }
         if (mounted) {
           setProject(saved);
           setFrameBlob(savedFrame?.blob ?? null);
+          setFrameTextManifest(loadedTextManifest);
           setIllustrationBlob(savedIllustration?.blob ?? null);
+          if (manifestWarning) setError(manifestWarning);
           setIsReady(true);
         }
       } catch (cause) {
@@ -53,6 +71,11 @@ export default function App() {
   }, []);
 
   useEffect(() => () => { if (framePreviewUrl) URL.revokeObjectURL(framePreviewUrl); }, [framePreviewUrl]);
+
+  useEffect(() => {
+    frameFolderInputRef.current?.setAttribute('webkitdirectory', '');
+    frameFolderInputRef.current?.setAttribute('directory', '');
+  }, []);
 
   useEffect(() => {
     if (!project) return;
@@ -71,7 +94,7 @@ export default function App() {
     void (async () => {
       try {
         const frame = frameBlob ?? undefined;
-        const composed = await composeCard({ card: currentCard, template: CARD_TEMPLATE, illustration: illustrationBlob, frame, transform: currentCard.transform });
+        const composed = await composeCard({ card: currentCard, template: CARD_TEMPLATE, illustration: illustrationBlob, frame, textManifest: frameTextManifest, transform: currentCard.transform });
         if (active) {
           const context = canvas.getContext('2d');
           context?.clearRect(0, 0, canvas.width, canvas.height);
@@ -80,7 +103,7 @@ export default function App() {
       } catch (cause) { if (active) setError(`Falha na prévia: ${messageOf(cause)}`); }
     })();
     return () => { active = false; };
-  }, [currentCard, frameBlob, illustrationBlob, isReady]);
+  }, [currentCard, frameBlob, frameTextManifest, illustrationBlob, isReady]);
 
   const commit = useCallback(async (next: ProjectDocument) => {
     setProject(next);
@@ -95,37 +118,89 @@ export default function App() {
     await commit(next);
   }, [project, selectedId, currentCard, commit]);
 
+  const applyFrameCandidate = async (candidate: FrameCandidate) => {
+    if (!project) return;
+    setIsBusy(true); setError('');
+    try {
+      validateImageFile(candidate.frame, 'frame');
+      const image = await imageFromBlob(candidate.frame);
+      if (!matchesAspectRatio(image.naturalWidth, image.naturalHeight, CARD_TEMPLATE.canvas.width / CARD_TEMPLATE.canvas.height)) {
+        throw new Error('A moldura PNG precisa ter proporção 2:3 para manter a geometria da carta.');
+      }
+
+      let manifest: FrameTextManifest | null = null;
+      let manifestAsset: StoredAsset | null = null;
+      let diagnostic = '';
+      if (candidate.manifest) {
+        try {
+          manifest = await readFrameManifest(candidate.manifest);
+          manifestAsset = {
+            id: crypto.randomUUID(),
+            blob: new Blob([await candidate.manifest.text()], { type: 'application/json' }),
+            filename: candidate.manifest.name,
+            mimeType: 'application/json',
+            role: 'frame-manifest',
+            createdAt: new Date().toISOString(),
+          };
+        } catch (cause) {
+          diagnostic = `Manifesto ${candidate.manifest.name} inválido: ${messageOf(cause)}. Usando a tipografia legada.`;
+        }
+      } else {
+        diagnostic = `Manifesto ${getFrameSidecarName(candidate.frame.name)} não encontrado. Usando a tipografia legada.`;
+      }
+
+      const frameAsset: StoredAsset = {
+        id: crypto.randomUUID(), blob: candidate.frame, filename: candidate.frame.name,
+        mimeType: candidate.frame.type || 'image/png', role: 'frame', createdAt: new Date().toISOString(),
+      };
+      await saveAsset(frameAsset);
+      if (manifestAsset) await saveAsset(manifestAsset);
+      const oldFrameId = project.frameAssetId;
+      const oldManifestId = project.frameManifestAssetId;
+      await commit({ ...project, frameAssetId: frameAsset.id, frameManifestAssetId: manifestAsset?.id ?? null });
+      setFrameBlob(candidate.frame);
+      setFrameTextManifest(manifest);
+      setFrameCandidates([]);
+      if (oldFrameId) await deleteAsset(oldFrameId);
+      if (oldManifestId) await deleteAsset(oldManifestId);
+      setNotice(manifest ? `Moldura e manifesto ${candidate.manifest?.name} carregados` : 'Moldura carregada com tipografia legada');
+      if (diagnostic) setError(diagnostic);
+    } catch (cause) { setError(messageOf(cause)); }
+    finally { setIsBusy(false); }
+  };
+
+  const handleFrameFiles = async (files: File[]) => {
+    const candidates = getFrameCandidates(files);
+    if (!candidates.length) { setError('Selecione um arquivo PNG de moldura.'); return; }
+    setError('');
+    if (candidates.length === 1) {
+      await applyFrameCandidate(candidates[0]!);
+      return;
+    }
+    setFrameCandidates(candidates);
+    setSelectedFrameCandidateId(candidates[0]!.id);
+    setNotice(`${candidates.length} molduras encontradas. Escolha qual carregar.`);
+  };
+
   const handleFile = async (event: ChangeEvent<HTMLInputElement>, kind: 'frame' | 'illustration') => {
-    const file = event.target.files?.[0];
+    const files = Array.from(event.target.files ?? []);
     event.target.value = '';
-    if (!file || !project) return;
+    if (!files.length || !project) return;
+    if (kind === 'frame') { await handleFrameFiles(files); return; }
+    const file = files[0]!;
     try {
       validateImageFile(file, kind);
-      if (kind === 'frame') {
-        const image = await imageFromBlob(file);
-        if (!matchesAspectRatio(image.naturalWidth, image.naturalHeight, CARD_TEMPLATE.canvas.width / CARD_TEMPLATE.canvas.height)) {
-          throw new Error('A moldura PNG precisa ter proporção 2:3 para manter a geometria da carta.');
-        }
-      }
-      if (kind === 'illustration' && currentCard.approvalStatus === 'approved') {
+      if (currentCard.approvalStatus === 'approved') {
         throw new Error('Esta carta está aprovada. Altere o status para Rascunho antes de substituir a ilustração.');
       }
       setIsBusy(true); setError('');
       const asset: StoredAsset = { id: crypto.randomUUID(), blob: file, filename: file.name, mimeType: file.type, role: kind, createdAt: new Date().toISOString() };
       await saveAsset(asset);
-      if (kind === 'frame') {
-        const oldId = project.frameAssetId;
-        await commit({ ...project, frameAssetId: asset.id });
-        setFrameBlob(file);
-        if (oldId) await deleteAsset(oldId);
-        setNotice('Moldura PNG carregada e salva localmente');
-      } else {
-        const oldId = currentCard.illustrationAssetId;
-        await updateSelected({ illustrationAssetId: asset.id });
-        setIllustrationBlob(file);
-        if (oldId) await deleteAsset(oldId);
-        setNotice(`Ilustração de ${currentCard.title} carregada e salva`);
-      }
+      const oldId = currentCard.illustrationAssetId;
+      await updateSelected({ illustrationAssetId: asset.id });
+      setIllustrationBlob(file);
+      if (oldId) await deleteAsset(oldId);
+      setNotice(`Ilustração de ${currentCard.title} carregada e salva`);
     } catch (cause) { setError(messageOf(cause)); }
     finally { setIsBusy(false); }
   };
@@ -137,7 +212,7 @@ export default function App() {
   const exportPng = async () => {
     setIsBusy(true); setError('');
     try {
-      const blob = await exportCardPng({ card: currentCard, template: CARD_TEMPLATE, illustration: illustrationBlob, frame: frameBlob, transform: currentCard.transform });
+      const blob = await exportCardPng({ card: currentCard, template: CARD_TEMPLATE, illustration: illustrationBlob, frame: frameBlob, textManifest: frameTextManifest, transform: currentCard.transform });
       download(blob, `${displayNumber(currentCard.number)}-${slug(currentCard.title)}.png`);
       setNotice('PNG exportado na resolução nativa do template');
     } catch (cause) { setError(`Falha na exportação PNG: ${messageOf(cause)}`); }
@@ -158,6 +233,7 @@ export default function App() {
     try {
       const ids = new Set<string>();
       if (project.frameAssetId) ids.add(project.frameAssetId);
+      if (project.frameManifestAssetId) ids.add(project.frameManifestAssetId);
       Object.values(project.cards).forEach((card) => { if (card.illustrationAssetId) ids.add(card.illustrationAssetId); });
       const assets = (await Promise.all([...ids].map(getAsset))).filter((asset): asset is StoredAsset => Boolean(asset));
       const blob = await exportProjectZip(project, assets);
@@ -174,12 +250,19 @@ export default function App() {
     try {
       const imported = await importProjectZip(file);
       const versionNotice = isKnownTemplateVersion(imported.project.templateVersion) ? '' : ' Versão de template diferente será preservada no projeto.';
+      const importedFrameManifest = imported.project.frameManifestAssetId
+        ? imported.assets.find((asset) => asset.id === imported.project.frameManifestAssetId)
+        : undefined;
+      const importedTextManifest = importedFrameManifest
+        ? await readFrameManifest(importedFrameManifest.blob)
+        : imported.project.frameAssetId ? null : DEFAULT_FRAME_TEXT_MANIFEST;
       // O manifesto e todos os recursos são validados antes do primeiro write.
       await replaceProjectAndAssets(imported.project, imported.assets);
       setProject(imported.project);
       const frame = imported.project.frameAssetId ? imported.assets.find((asset) => asset.id === imported.project.frameAssetId) : undefined;
       const imageId = imported.project.cards[selectedId]?.illustrationAssetId;
       setFrameBlob(frame?.blob ?? null);
+      setFrameTextManifest(importedTextManifest);
       setIllustrationBlob(imported.assets.find((asset) => asset.id === imageId)?.blob ?? null);
       setNotice(`Projeto importado com sucesso.${versionNotice}`);
     } catch (cause) { setError(`Importação cancelada: ${messageOf(cause)}`); }
@@ -274,9 +357,17 @@ export default function App() {
             <div className={`frame-preview ${frameBlob ? 'has-frame' : ''}`}>
               {framePreviewUrl ? <img src={framePreviewUrl} alt="Prévia da moldura carregada" /> : <div className="frame-placeholder"><span>◇</span><small>Moldura provisória</small></div>}
             </div>
-            <button className="button button-outline full-width" onClick={() => frameInputRef.current?.click()} disabled={isBusy}><span className="button-icon">↑</span>{frameBlob ? 'Substituir moldura PNG' : 'Carregar moldura PNG'}</button>
-            <input ref={frameInputRef} hidden type="file" accept="image/png,.png" onChange={(event) => void handleFile(event, 'frame')} />
-            <p className="micro-note">PNG transparente · até 20 MB</p>
+            <div className="frame-load-actions">
+              <button className="button button-outline" onClick={() => frameInputRef.current?.click()} disabled={isBusy}><span className="button-icon">↑</span>{frameBlob ? 'Substituir PNG' : 'Carregar PNG'}</button>
+              <button className="button button-quiet" onClick={() => frameFolderInputRef.current?.click()} disabled={isBusy}>Ler pasta</button>
+            </div>
+            <input ref={frameInputRef} hidden type="file" multiple accept="image/png,.png,application/json,.json" onChange={(event) => void handleFile(event, 'frame')} />
+            <input ref={frameFolderInputRef} hidden type="file" multiple accept="image/png,.png,application/json,.json" onChange={(event) => void handleFile(event, 'frame')} />
+            <p className="micro-note">Selecione o PNG e o JSON homônimo juntos ou carregue a pasta. PNG até 20 MB.</p>
+            {frameCandidates.length > 1 && <div className="frame-candidate-picker">
+              <label className="field"><span>Moldura encontrada</span><select value={selectedFrameCandidateId} onChange={(event) => setSelectedFrameCandidateId(event.target.value)}>{frameCandidates.map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.frame.name}{candidate.manifest ? ' · JSON encontrado' : ' · sem JSON'}</option>)}</select></label>
+              <button className="button button-outline full-width" onClick={() => { const candidate = frameCandidates.find((item) => item.id === selectedFrameCandidateId); if (candidate) void applyFrameCandidate(candidate); }} disabled={isBusy}>Carregar selecionada</button>
+            </div>}
           </div>
           <div className="panel-block image-controls">
             <span className="eyebrow">POSICIONAMENTO</span><h2>Ilustração</h2>
@@ -306,5 +397,6 @@ function download(blob: Blob, filename: string) {
   anchor.href = url; anchor.download = filename; anchor.click();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+async function readFrameManifest(blob: Blob): Promise<FrameTextManifest> { return parseFrameTextManifestBlob(blob); }
 function slug(value: string) { return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
 function messageOf(cause: unknown) { return cause instanceof Error ? cause.message : 'Erro inesperado.'; }
