@@ -1,14 +1,10 @@
 export type ApprovalStatus = 'draft' | 'approved';
-export type ReferenceStatus = 'pending' | 'proposed' | 'approved';
-export type DefinitionStatus = 'a_definir' | 'proposta' | 'aprovada';
+export type ReferenceStatus = 'pending' | 'approved';
 
 export interface CardData {
   id: string;
   number: number;
   title: string;
-  representation: string;
-  observation: string;
-  definitionStatus: DefinitionStatus;
   bibleReference: string;
   referenceStatus: ReferenceStatus;
   approvalStatus: ApprovalStatus;

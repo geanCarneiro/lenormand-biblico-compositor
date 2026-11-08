@@ -31,7 +31,7 @@ Os dados e arquivos ficam no IndexedDB do navegador atual. Limpar os dados do si
 4. Edite título e referência; as referências começam com status **Pendente** para evitar dados bíblicos não verificados.
 5. Exporte a carta como PNG ou o conjunto do projeto em ZIP.
 
-Cartas marcadas como **Aprovada** não aceitam substituição de ilustração até que o status seja alterado para **Rascunho**. O catálogo e as propostas agora vêm de `src/data/cartas.json`, incluindo representação visual, referência, observações e status por carta. Os estados **Proposta** e **A definir** são preservados e não são tratados como aprovação. Referências e direções podem ser editadas no editor; textos locais existentes são preservados na migração. A carta 08 aparece como **Sepultura (Caixão)** e a 16 como **Estrelas**, de acordo com o arquivo.
+Cartas marcadas como **Aprovada** não aceitam substituição de ilustração até que o status seja alterado para **Rascunho**. `src/data/cartas.json` fornece os nomes e referências bíblicas do catálogo. As referências ficam pendentes de aprovação no editor, mesmo quando o JSON as marca como propostas. Representações e observações permanecem no arquivo-fonte e não alteram a interface. A carta 08 aparece como **Sepultura (Caixão)** e a 16 como **Estrelas**, de acordo com o arquivo.
 
 ## Template
 

@@ -100,11 +100,10 @@ function validateManifest(value: unknown): ArchiveManifest {
     if (!catalogIds.has(id) || !isRecord(card) || card.id !== id) throw new Error(`Carta inválida: ${id}`);
     if (typeof card.number !== 'number' || !Number.isInteger(card.number) || card.number < 1 || card.number > 36 || typeof card.title !== 'string' || typeof card.bibleReference !== 'string') throw new Error(`Dados inválidos na carta ${id}.`);
     if (card.number !== Number(id.slice(-2))) throw new Error(`Numeração tradicional incorreta na carta ${id}.`);
+    // Accept 'proposed' from ZIPs created by the previous JSON-integrated UI;
+    // normalization maps it back to the app's existing pending approval state.
     if (card.referenceStatus !== undefined && !['pending', 'proposed', 'approved'].includes(String(card.referenceStatus))) throw new Error(`Status da referência inválido na carta ${id}.`);
-    if (card.definitionStatus !== undefined && !['a_definir', 'proposta', 'aprovada'].includes(String(card.definitionStatus))) throw new Error(`Status da direção inválido na carta ${id}.`);
     if (card.approvalStatus !== undefined && !['draft', 'approved'].includes(String(card.approvalStatus))) throw new Error(`Status de aprovação inválido na carta ${id}.`);
-    if (card.representation !== undefined && typeof card.representation !== 'string') throw new Error(`Representação inválida na carta ${id}.`);
-    if (card.observation !== undefined && typeof card.observation !== 'string') throw new Error(`Observação inválida na carta ${id}.`);
     if (!isRecord(card.transform) || ![card.transform.x, card.transform.y, card.transform.zoom].every((n) => typeof n === 'number' && Number.isFinite(n)) || card.transform.zoom < 0.5 || card.transform.zoom > 3) throw new Error(`Transformação inválida na carta ${id}.`);
     if (card.illustrationAssetId !== null && (typeof card.illustrationAssetId !== 'string' || !ids.has(card.illustrationAssetId))) throw new Error(`Ilustração ausente na carta ${id}.`);
     if (typeof card.illustrationAssetId === 'string' && !assets.some((asset) => isRecord(asset) && asset.id === card.illustrationAssetId && asset.role === 'illustration')) throw new Error(`Recurso de ilustração inválido na carta ${id}.`);

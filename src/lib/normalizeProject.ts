@@ -2,28 +2,23 @@ import { cardCatalog } from '../data/cards';
 import { CARD_TEMPLATE } from '../template';
 import type { CardData, CardWorkspace, ProjectDocument } from '../types';
 
-type ExistingCard = Partial<CardData & CardWorkspace>;
+type ExistingCard = Partial<CardData & CardWorkspace> & { referenceStatus?: string };
 
-/** Adds fields introduced by later app versions while preserving local edits. */
+/** Updates catalog fields from cartas.json without overwriting local card edits. */
 export function normalizeProject(input: ProjectDocument): ProjectDocument {
   const oldCards = input.cards ?? {};
   const cards = Object.fromEntries(cardCatalog.map((seed) => {
     const existing = oldCards[seed.id] as ExistingCard | undefined;
     const existingReference = typeof existing?.bibleReference === 'string' ? existing.bibleReference : '';
     const hasReferenceEdit = existingReference.trim().length > 0;
-    const title = migrateDefaultTitle(existing?.title, seed);
     const transform = isTransform(existing?.transform) ? existing.transform : { zoom: 1, x: 0, y: 0 };
     return [seed.id, {
       ...seed,
-      ...existing,
       id: seed.id,
       number: seed.number,
-      title,
-      representation: typeof existing?.representation === 'string' ? existing.representation : seed.representation,
-      observation: typeof existing?.observation === 'string' ? existing.observation : seed.observation,
-      definitionStatus: isDefinitionStatus(existing?.definitionStatus) ? existing.definitionStatus : seed.definitionStatus,
+      title: migrateDefaultTitle(existing?.title, seed),
       bibleReference: hasReferenceEdit ? existingReference : seed.bibleReference,
-      referenceStatus: hasReferenceEdit && isReferenceStatus(existing?.referenceStatus) ? existing.referenceStatus : seed.referenceStatus,
+      referenceStatus: hasReferenceEdit && existing?.referenceStatus === 'approved' ? 'approved' : 'pending',
       approvalStatus: existing?.approvalStatus === 'approved' ? 'approved' : 'draft',
       illustrationAssetId: typeof existing?.illustrationAssetId === 'string' ? existing.illustrationAssetId : null,
       transform,
@@ -46,12 +41,7 @@ function migrateDefaultTitle(title: unknown, seed: CardData): string {
   const legacyTitle = seed.number === 8 ? 'Sepultura' : seed.number === 16 ? 'Estrela' : seed.title;
   return title === legacyTitle || title === seed.title ? seed.title : title;
 }
-function isDefinitionStatus(value: unknown): value is CardData['definitionStatus'] {
-  return value === 'a_definir' || value === 'proposta' || value === 'aprovada';
-}
-function isReferenceStatus(value: unknown): value is CardData['referenceStatus'] {
-  return value === 'pending' || value === 'proposed' || value === 'approved';
-}
+
 function isTransform(value: unknown): value is CardWorkspace['transform'] {
   if (typeof value !== 'object' || value === null) return false;
   const transform = value as CardWorkspace['transform'];
