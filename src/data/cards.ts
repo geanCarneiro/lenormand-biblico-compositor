@@ -1,19 +1,39 @@
-import type { CardData } from '../types';
+import cardSource from './cartas.json';
+import type { CardData, DefinitionStatus, ReferenceStatus } from '../types';
 
-const names = [
-  'Cavaleiro', 'Trevo', 'Navio', 'Casa', 'Árvore', 'Nuvens', 'Cobra', 'Sepultura',
-  'Buquê', 'Foice', 'Chicote', 'Pássaros', 'Criança', 'Raposa', 'Urso', 'Estrela',
-  'Cegonha', 'Cão', 'Torre', 'Jardim', 'Montanha', 'Caminhos', 'Ratos', 'Coração',
-  'Anel', 'Livro', 'Carta', 'Homem', 'Mulher', 'Lírios', 'Sol', 'Lua',
-  'Chave', 'Peixes', 'Âncora', 'Cruz',
-];
+interface SourceCard {
+  numero: number;
+  nome: string;
+  representacao: string;
+  referencia: string;
+  observacao: string;
+  status: DefinitionStatus;
+}
 
-export const cardCatalog: CardData[] = names.map((title, index) => ({
-  id: `lenormand-${String(index + 1).padStart(2, '0')}`,
-  number: index + 1,
-  title,
-  bibleReference: '',
-  referenceStatus: 'pending',
+const sourceCards = cardSource.cartas as SourceCard[];
+
+export const catalogMetadata = {
+  project: cardSource.projeto,
+  canon: cardSource.canon,
+  version: cardSource.versao,
+};
+
+function getReferenceStatus(reference: string, status: DefinitionStatus): ReferenceStatus {
+  if (!reference.trim() || reference.trim() === '—') return 'pending';
+  if (status === 'proposta') return 'proposed';
+  if (status === 'aprovada') return 'approved';
+  return 'pending';
+}
+
+export const cardCatalog: CardData[] = sourceCards.map((source) => ({
+  id: `lenormand-${String(source.numero).padStart(2, '0')}`,
+  number: source.numero,
+  title: source.nome,
+  representation: source.representacao,
+  observation: source.observacao,
+  definitionStatus: source.status,
+  bibleReference: source.referencia.trim() === '—' ? '' : source.referencia,
+  referenceStatus: getReferenceStatus(source.referencia, source.status),
   approvalStatus: 'draft',
 }));
 

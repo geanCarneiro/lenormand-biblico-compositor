@@ -238,11 +238,18 @@ export default function App() {
         <section className="editor-pane" aria-label="Editor da carta">
           <div className="editor-heading">
             <div><span className="eyebrow">EDIÇÃO DA CARTA</span><h1><span className="heading-number">{displayNumber(currentCard.number)}</span>{currentCard.title}</h1></div>
-            <label className="approval-select"><span>Status</span><select value={currentCard.approvalStatus} onChange={(event) => void updateSelected({ approvalStatus: event.target.value as CardData['approvalStatus'] })}><option value="draft">Rascunho</option><option value="approved">Aprovada</option></select></label>
+            <div className="status-stack">
+              <label className="approval-select"><span>Direção do catálogo</span><select value={currentCard.definitionStatus} onChange={(event) => void updateSelected({ definitionStatus: event.target.value as CardData['definitionStatus'] })}><option value="a_definir">A definir</option><option value="proposta">Proposta</option><option value="aprovada">Aprovada</option></select></label>
+              <label className="approval-select"><span>Aprovação da carta</span><select value={currentCard.approvalStatus} onChange={(event) => void updateSelected({ approvalStatus: event.target.value as CardData['approvalStatus'] })}><option value="draft">Rascunho</option><option value="approved">Aprovada</option></select></label>
+            </div>
           </div>
           <div className="field-grid">
             <label className="field"><span>Nome da carta</span><input value={currentCard.title} maxLength={48} onChange={(event) => void updateSelected({ title: event.target.value })} /></label>
-            <label className="field"><span>Referência bíblica</span><div className="reference-entry"><input value={currentCard.bibleReference} placeholder="Referência pendente" maxLength={100} onChange={(event) => void updateSelected({ bibleReference: event.target.value, referenceStatus: 'pending' })} /><select aria-label="Status da referência bíblica" value={currentCard.referenceStatus} onChange={(event) => void updateSelected({ referenceStatus: event.target.value as CardData['referenceStatus'] })}><option value="pending">Pendente</option><option value="approved">Aprovada</option></select></div></label>
+            <label className="field"><span>Referência bíblica</span><div className="reference-entry"><input value={currentCard.bibleReference} placeholder="Referência pendente" maxLength={100} onChange={(event) => void updateSelected({ bibleReference: event.target.value, referenceStatus: 'pending' })} /><select aria-label="Status da referência bíblica" value={currentCard.referenceStatus} onChange={(event) => void updateSelected({ referenceStatus: event.target.value as CardData['referenceStatus'] })}><option value="pending">Pendente</option><option value="proposed">Proposta</option><option value="approved">Aprovada</option></select></div></label>
+          </div>
+          <div className="field-grid detail-grid">
+            <label className="field"><span>Representação bíblica</span><textarea value={currentCard.representation} rows={2} maxLength={400} onChange={(event) => void updateSelected({ representation: event.target.value })} /></label>
+            <label className="field"><span>Observações</span><textarea value={currentCard.observation} rows={2} maxLength={400} onChange={(event) => void updateSelected({ observation: event.target.value })} /></label>
           </div>
           <div className="canvas-section">
             <div className="canvas-toolbar"><div><span className="eyebrow">PRÉVIA EM TEMPO REAL</span><span className="preview-hint">Arraste a imagem para reposicionar</span></div><span className="resolution-badge">{CARD_TEMPLATE.canvas.width} × {CARD_TEMPLATE.canvas.height} px · provisório</span></div>

@@ -62,15 +62,20 @@ button:disabled { cursor: wait; opacity: .56; }
 .heading-number { color: #a5824f; font-size: 15px; font-family: Inter, sans-serif; font-weight: 500; }
 .approval-select { display: flex; align-items: center; gap: 7px; font-size: 10px; color: var(--muted); }
 .approval-select select { background: #fffefa; color: #625a4e; border: 1px solid #e2ddd3; border-radius: 4px; padding: 7px 22px 7px 9px; font-size: 10px; }
+.status-stack { display: flex; gap: 8px; align-items: flex-end; }
 .field-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 14px; margin-bottom: 25px; }
 .field { display: flex; flex-direction: column; gap: 7px; color: #70695f; font-size: 10px; font-weight: 600; }
 .field input { height: 39px; background: #fffefa; color: #39332b; border: 1px solid #e4dfd6; border-radius: 4px; padding: 0 11px; outline: none; font-size: 12px; font-weight: 400; }
+.field textarea { min-height: 61px; resize: vertical; background: #fffefa; color: #39332b; border: 1px solid #e4dfd6; border-radius: 4px; padding: 9px 11px; outline: none; font: 400 11px/1.45 Inter, ui-sans-serif, system-ui, sans-serif; }
 .field input:focus { border-color: #ad946e; box-shadow: 0 0 0 2px #ad946e22; }
+.field textarea:focus { border-color: #ad946e; box-shadow: 0 0 0 2px #ad946e22; }
 .field input::placeholder { color: #aaa294; }
+.field textarea::placeholder { color: #aaa294; }
 .reference-entry { position: relative; display: flex; }
 .reference-entry input { width: 100%; padding-right: 92px; }
 .reference-entry select { position: absolute; right: 5px; top: 5px; height: 29px; border: 0; border-left: 1px solid #e9e4dc; background: #fffefa; color: #8d806b; padding-left: 7px; font-size: 9px; }
 .field em { color: #a7834f; font-style: normal; font-size: 9px; font-weight: 400; margin-left: 4px; }
+.detail-grid { margin-top: -11px; }
 .canvas-section { border-top: 1px solid var(--line); padding-top: 16px; }
 .canvas-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 13px; }
 .canvas-toolbar > div { display: flex; align-items: center; gap: 11px; }
@@ -165,8 +170,9 @@ button:disabled { cursor: wait; opacity: .56; }
   .editor-pane { padding: 19px 14px 23px; }
   .editor-heading { margin-bottom: 18px; }
   .editor-heading h1 { font-size: 23px; }
-  .approval-select { flex-direction: column; align-items: flex-end; gap: 3px; font-size: 9px; }
-  .approval-select select { max-width: 100px; padding: 6px 17px 6px 6px; font-size: 9px; }
+  .status-stack { flex-direction: column; gap: 5px; align-items: flex-end; }
+  .approval-select { flex-direction: row; align-items: center; gap: 4px; font-size: 8px; }
+  .approval-select select { max-width: 108px; padding: 6px 17px 6px 6px; font-size: 9px; }
   .field-grid { grid-template-columns: 1fr; gap: 11px; margin-bottom: 20px; }
   .canvas-toolbar { align-items: flex-start; gap: 6px; }
   .canvas-toolbar > div { flex-direction: column; align-items: flex-start; gap: 4px; }

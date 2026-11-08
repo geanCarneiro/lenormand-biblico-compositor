@@ -2,6 +2,7 @@ import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
 import type { ProjectDocument, StoredAsset } from '../types';
 import { cardCatalog } from '../data/cards';
 import { CARD_TEMPLATE } from '../template';
+import { normalizeProject } from './normalizeProject';
 
 interface LenormandDB extends DBSchema {
   project: { key: string; value: ProjectDocument };
@@ -40,7 +41,11 @@ export function createEmptyProject(): ProjectDocument {
 
 export async function loadProject(): Promise<ProjectDocument> {
   const database = await db();
-  return (await database.get('project', PROJECT_ID)) ?? createEmptyProject();
+  const stored = await database.get('project', PROJECT_ID);
+  if (!stored) return createEmptyProject();
+  const normalized = normalizeProject(stored);
+  if (JSON.stringify(stored) !== JSON.stringify(normalized)) await database.put('project', normalized, PROJECT_ID);
+  return normalized;
 }
 
 export async function saveProject(project: ProjectDocument): Promise<void> {

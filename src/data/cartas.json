@@ -1,0 +1,295 @@
+{
+  "projeto": "Lenormand Bíblico",
+  "canon": "66 livros protestantes",
+  "versao": "snapshot-2026-11-07",
+  "cartas": [
+    {
+      "numero": 1,
+      "nome": "Cavaleiro",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Notícias e movimento",
+      "status": "a_definir"
+    },
+    {
+      "numero": 2,
+      "nome": "Trevo",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Sorte e oportunidade",
+      "status": "a_definir"
+    },
+    {
+      "numero": 3,
+      "nome": "Navio",
+      "representacao": "Arca de Noé no dilúvio",
+      "referencia": "Gn 7:17–18",
+      "observacao": "Alternativa anterior: barco de Pedro; proposta mais recente: arca",
+      "status": "proposta"
+    },
+    {
+      "numero": 4,
+      "nome": "Casa",
+      "representacao": "Maria grávida entrando na casa de Isabel/Zacarias",
+      "referencia": "Lc 1:39–40",
+      "observacao": "Casa visualmente destacada",
+      "status": "proposta"
+    },
+    {
+      "numero": 5,
+      "nome": "Árvore",
+      "representacao": "Árvore do conhecimento do bem e do mal",
+      "referencia": "Gn 2:9,16–17",
+      "observacao": "Evitar confundir significado da carta com pecado",
+      "status": "proposta"
+    },
+    {
+      "numero": 6,
+      "nome": "Nuvens",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Incerteza",
+      "status": "a_definir"
+    },
+    {
+      "numero": 7,
+      "nome": "Cobra",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Engano e complicações",
+      "status": "a_definir"
+    },
+    {
+      "numero": 8,
+      "nome": "Sepultura (Caixão)",
+      "representacao": "Sepultura de Jesus, pedra fechando entrada",
+      "referencia": "Mt 27:59–60",
+      "observacao": "Evitar pano solto e iconografia da ressurreição",
+      "status": "proposta"
+    },
+    {
+      "numero": 9,
+      "nome": "Buquê",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Alegria e presente",
+      "status": "a_definir"
+    },
+    {
+      "numero": 10,
+      "nome": "Foice",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Corte e ruptura",
+      "status": "a_definir"
+    },
+    {
+      "numero": 11,
+      "nome": "Chicote",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Conflito e repetição",
+      "status": "a_definir"
+    },
+    {
+      "numero": 12,
+      "nome": "Pássaros",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Conversa e agitação",
+      "status": "a_definir"
+    },
+    {
+      "numero": 13,
+      "nome": "Criança",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Novidade e inocência",
+      "status": "a_definir"
+    },
+    {
+      "numero": 14,
+      "nome": "Raposa",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Astúcia",
+      "status": "a_definir"
+    },
+    {
+      "numero": 15,
+      "nome": "Urso",
+      "representacao": "Duas ursas na narrativa de Eliseu",
+      "referencia": "2Rs 2:23–24",
+      "observacao": "Não transformar em significado de punição",
+      "status": "proposta"
+    },
+    {
+      "numero": 16,
+      "nome": "Estrelas",
+      "representacao": "Estrela de Belém em céu estrelado",
+      "referencia": "Mt 2:1–10",
+      "observacao": "Manter plural visual de estrelas; magos não são chamados três reis no texto",
+      "status": "proposta"
+    },
+    {
+      "numero": 17,
+      "nome": "Cegonha",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Mudança",
+      "status": "a_definir"
+    },
+    {
+      "numero": 18,
+      "nome": "Cão",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Lealdade",
+      "status": "a_definir"
+    },
+    {
+      "numero": 19,
+      "nome": "Torre",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Instituição e isolamento",
+      "status": "a_definir"
+    },
+    {
+      "numero": 20,
+      "nome": "Jardim",
+      "representacao": "Jardim do Éden",
+      "referencia": "Gn 2:8–9",
+      "observacao": "Jardim central",
+      "status": "proposta"
+    },
+    {
+      "numero": 21,
+      "nome": "Montanha",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Obstáculos",
+      "status": "a_definir"
+    },
+    {
+      "numero": 22,
+      "nome": "Caminhos",
+      "representacao": "Caminho(s) associado(s) a Jesus",
+      "referencia": "Jo 14:6",
+      "observacao": "Alternativa visual mais compatível com escolhas: Mt 7:13–14",
+      "status": "proposta"
+    },
+    {
+      "numero": 23,
+      "nome": "Ratos",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Desgaste e perda",
+      "status": "a_definir"
+    },
+    {
+      "numero": 24,
+      "nome": "Coração",
+      "representacao": "Coração transpassado, coroa de espinhos",
+      "referencia": "Jo 19:34; 19:2; 15:13",
+      "observacao": "Composição alusiva, não descrição literal",
+      "status": "proposta"
+    },
+    {
+      "numero": 25,
+      "nome": "Anel",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Compromisso",
+      "status": "a_definir"
+    },
+    {
+      "numero": 26,
+      "nome": "Livro",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Conhecimento e segredo",
+      "status": "a_definir"
+    },
+    {
+      "numero": 27,
+      "nome": "Carta",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Mensagem e documento",
+      "status": "a_definir"
+    },
+    {
+      "numero": 28,
+      "nome": "Homem",
+      "representacao": "José, marido de Maria",
+      "referencia": "Mt 1:18–25",
+      "observacao": "Preferência provisória em relação a Adão",
+      "status": "proposta"
+    },
+    {
+      "numero": 29,
+      "nome": "Mulher",
+      "representacao": "Maria, mãe de Jesus",
+      "referencia": "Lc 1:26–38",
+      "observacao": "Sem iconografia confessional obrigatória",
+      "status": "proposta"
+    },
+    {
+      "numero": 30,
+      "nome": "Lírios",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Paz e maturidade",
+      "status": "a_definir"
+    },
+    {
+      "numero": 31,
+      "nome": "Sol",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Clareza e sucesso",
+      "status": "a_definir"
+    },
+    {
+      "numero": 32,
+      "nome": "Lua",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Emoção e reconhecimento",
+      "status": "a_definir"
+    },
+    {
+      "numero": 33,
+      "nome": "Chave",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Solução",
+      "status": "a_definir"
+    },
+    {
+      "numero": 34,
+      "nome": "Peixes",
+      "representacao": "Rede de pesca cheia de peixes",
+      "referencia": "Lc 5:4–7",
+      "observacao": "Apenas rede e peixes, se possível",
+      "status": "proposta"
+    },
+    {
+      "numero": 35,
+      "nome": "Âncora",
+      "representacao": "A definir",
+      "referencia": "—",
+      "observacao": "Estabilidade",
+      "status": "a_definir"
+    },
+    {
+      "numero": 36,
+      "nome": "Cruz",
+      "representacao": "Crucificação de Jesus",
+      "referencia": "Jo 19:17–18",
+      "observacao": "Preservar fardo, sofrimento e provação",
+      "status": "proposta"
+    }
+  ]
+}
