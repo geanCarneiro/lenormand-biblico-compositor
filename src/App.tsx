@@ -4,7 +4,8 @@ import { CARD_TEMPLATE } from './template';
 import type { CardData, ProjectDocument, StoredAsset } from './types';
 import { deleteAsset, getAsset, loadProject, replaceProjectAndAssets, saveAsset, saveProject } from './lib/database';
 import { exportCardPng, composeCard } from './lib/renderer';
-import { validateImageFile } from './lib/files';
+import { imageFromBlob, validateImageFile } from './lib/files';
+import { matchesAspectRatio } from './lib/geometry';
 import { exportProjectZip, importProjectZip, isKnownTemplateVersion } from './lib/projectArchive';
 
 const displayNumber = (number: number) => String(number).padStart(2, '0');
@@ -100,6 +101,12 @@ export default function App() {
     if (!file || !project) return;
     try {
       validateImageFile(file, kind);
+      if (kind === 'frame') {
+        const image = await imageFromBlob(file);
+        if (!matchesAspectRatio(image.naturalWidth, image.naturalHeight, CARD_TEMPLATE.canvas.width / CARD_TEMPLATE.canvas.height)) {
+          throw new Error('A moldura PNG precisa ter proporção 2:3 para manter a geometria da carta.');
+        }
+      }
       if (kind === 'illustration' && currentCard.approvalStatus === 'approved') {
         throw new Error('Esta carta está aprovada. Altere o status para Rascunho antes de substituir a ilustração.');
       }

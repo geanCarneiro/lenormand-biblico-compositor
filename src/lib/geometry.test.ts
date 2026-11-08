@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { clampZoom, getImageDrawRect, validateRect } from './geometry';
+import { clampZoom, getImageDrawRect, matchesAspectRatio, validateRect } from './geometry';
 
 describe('geometry helpers', () => {
   it('covers the fixed illustration region and centers the image', () => {
@@ -18,5 +18,9 @@ describe('geometry helpers', () => {
   it('validates template coordinates against canvas bounds', () => {
     expect(validateRect({ x: 10, y: 15, width: 20, height: 30 }, { width: 40, height: 50 })).toBe(true);
     expect(validateRect({ x: 25, y: 15, width: 20, height: 30 }, { width: 40, height: 50 })).toBe(false);
+  });
+  it('accepts only frame images that match the configured 2:3 ratio', () => {
+    expect(matchesAspectRatio(750, 1125, 2 / 3)).toBe(true);
+    expect(matchesAspectRatio(750, 1050, 2 / 3)).toBe(false);
   });
 });

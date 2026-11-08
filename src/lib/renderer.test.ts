@@ -15,7 +15,7 @@ describe('PNG composition', () => {
     const canvas = { width: 0, height: 0, getContext: vi.fn(() => context), toBlob: (cb: BlobCallback) => cb(new Blob(['png'], { type: 'image/png' })) } as unknown as HTMLCanvasElement;
     vi.spyOn(document, 'createElement').mockImplementation((tag: string) => tag === 'canvas' ? canvas : document.createElement(tag));
     vi.stubGlobal('Image', class {
-      naturalWidth = 300; naturalHeight = 400; onload: (() => void) | null = null;
+      naturalWidth = 750; naturalHeight = 1125; onload: (() => void) | null = null;
       set src(_value: string) { queueMicrotask(() => this.onload?.()); }
     });
     vi.stubGlobal('URL', { ...URL, createObjectURL: vi.fn(() => 'blob:test'), revokeObjectURL: vi.fn() });
@@ -26,7 +26,8 @@ describe('PNG composition', () => {
     });
     expect(result.type).toBe('image/png');
     expect(canvas.width).toBe(750);
-    expect(canvas.height).toBe(1050);
+    expect(canvas.height).toBe(1125);
+    expect(canvas.width / canvas.height).toBe(2 / 3);
     expect(calls.indexOf('clip')).toBeLessThan(calls.lastIndexOf('draw-image'));
     expect(context.drawImage).toHaveBeenCalledTimes(2);
     expect(context.fillText).toHaveBeenCalledTimes(3);

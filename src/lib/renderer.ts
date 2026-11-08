@@ -1,5 +1,5 @@
 import type { CardData, CardTemplate, ImageTransform } from '../types';
-import { getImageDrawRect } from './geometry';
+import { getImageDrawRect, matchesAspectRatio } from './geometry';
 import { imageFromBlob, imageFromUrl } from './files';
 
 export interface ComposeOptions {
@@ -36,6 +36,9 @@ export async function composeCard(options: ComposeOptions): Promise<HTMLCanvasEl
   }
 
   const frameImage = frame ? await imageFromBlob(frame) : await imageFromUrl(template.framePath);
+  if (!matchesAspectRatio(frameImage.naturalWidth, frameImage.naturalHeight, canvas.width / canvas.height)) {
+    throw new Error('A moldura precisa estar na mesma proporção 2:3 da carta.');
+  }
   // Moldura cobre o canvas completo sem uma transformação independente.
   context.drawImage(frameImage, 0, 0, canvas.width, canvas.height);
 

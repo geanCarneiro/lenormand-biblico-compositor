@@ -31,3 +31,8 @@ export function validateRect(rect: Rect, canvas: { width: number; height: number
     && rect.x + rect.width <= canvas.width
     && rect.y + rect.height <= canvas.height;
 }
+
+export function matchesAspectRatio(width: number, height: number, ratio: number, tolerance = 0.001): boolean {
+  if (![width, height, ratio, tolerance].every(Number.isFinite) || width <= 0 || height <= 0 || ratio <= 0) return false;
+  return Math.abs(width / height - ratio) <= tolerance;
+}

@@ -82,7 +82,7 @@ button:disabled { cursor: wait; opacity: .56; }
 .preview-hint { color: #999184; font-size: 10px; }
 .resolution-badge { color: #9a9386; font-size: 9px; background: #eeebe5; border-radius: 3px; padding: 5px 7px; }
 .preview-stage { min-height: 505px; display: flex; align-items: center; justify-content: center; padding: 18px; background: #edeae4; border: 1px solid #e5e0d7; border-radius: 5px; background-image: radial-gradient(#d9d4ca 0.65px, transparent 0.65px); background-size: 12px 12px; }
-.card-preview-wrap { position: relative; width: min(100%, 334px); max-height: 470px; aspect-ratio: 5 / 7; box-shadow: 0 8px 22px #342c201c, 0 1px 3px #342c201a; overflow: hidden; touch-action: none; background: #f2ede3; }
+.card-preview-wrap { position: relative; width: min(100%, 313px); max-height: 470px; aspect-ratio: 2 / 3; box-shadow: 0 8px 22px #342c201c, 0 1px 3px #342c201a; overflow: hidden; touch-action: none; background: #f2ede3; }
 .preview-canvas { display: block; width: 100%; height: 100%; object-fit: contain; }
 .preview-canvas.has-illustration { cursor: grab; }
 .preview-canvas.dragging { cursor: grabbing; }
@@ -133,7 +133,7 @@ button:disabled { cursor: wait; opacity: .56; }
   .workspace { grid-template-columns: 244px minmax(600px, 1fr) 300px; }
   .editor-pane { padding-left: 52px; padding-right: 52px; }
   .preview-stage { min-height: 560px; }
-  .card-preview-wrap { width: min(100%, 366px); max-height: 520px; }
+  .card-preview-wrap { width: min(100%, 346px); max-height: 520px; }
 }
 @media (max-width: 1080px) {
   .workspace { grid-template-columns: 185px minmax(410px, 1fr) 245px; }
@@ -179,7 +179,7 @@ button:disabled { cursor: wait; opacity: .56; }
   .preview-hint { font-size: 9px; }
   .resolution-badge { font-size: 7px; white-space: nowrap; }
   .preview-stage { min-height: 0; padding: 12px; }
-  .card-preview-wrap { width: min(100%, 320px); max-height: none; }
+  .card-preview-wrap { width: min(100%, 300px); max-height: none; }
   .empty-upload { min-height: 80px; }
   .editor-actions { gap: 8px; }
   .editor-actions .button { min-width: 0; flex: 1; padding: 0 8px; font-size: 10px; }
