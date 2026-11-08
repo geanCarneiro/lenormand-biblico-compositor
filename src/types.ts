@@ -19,6 +19,7 @@ export interface CardTemplate {
   provisional: boolean;
   canvas: { width: number; height: number };
   framePath: string;
+  outerMask: { version: string; path: string; radiusPx: number };
   illustration: Rect;
   text: {
     number: { x: number; y: number; maxWidth: number; align: CanvasTextAlign; font: string; color: string };

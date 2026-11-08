@@ -2,13 +2,15 @@ import type { CardTemplate } from './types';
 
 /**
  * PROVISÓRIO: coordenadas visuais de trabalho, não aprovadas e sem dimensão
- * física de impressão implícita. A moldura é sempre desenhada no canvas inteiro.
+ * física de impressão implícita. A moldura e a máscara usam o canvas completo;
+ * a máscara externa arredondada é aplicada por último na composição.
  */
 export const CARD_TEMPLATE: CardTemplate = {
-  version: 'provisional-2',
+  version: 'provisional-3-rounded-mask-v1',
   provisional: true,
   canvas: { width: 750, height: 1125 },
   framePath: '/template/moldura-provisoria.png',
+  outerMask: { version: 'rounded-2-3-r48-v1', path: '/template/mask-rounded-2-3-r48-v1.png', radiusPx: 48 },
   illustration: { x: 74, y: 120, width: 602, height: 696 },
   text: {
     number: { x: 375, y: 84, maxWidth: 120, align: 'center', font: '700 34px Georgia, serif', color: '#33291f' },

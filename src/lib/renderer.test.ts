@@ -6,9 +6,16 @@ import { exportCardPng } from './renderer';
 describe('PNG composition', () => {
   it('exports at native size and clips the illustration before drawing the full frame', async () => {
     const calls: string[] = [];
+    let compositeOperation: GlobalCompositeOperation = 'source-over';
+    const compositeStack: GlobalCompositeOperation[] = [];
     const context = {
       fillStyle: '', font: '', textAlign: 'center', textBaseline: 'alphabetic',
-      fillRect: vi.fn(() => calls.push('background')), save: vi.fn(), restore: vi.fn(), beginPath: vi.fn(),
+      get globalCompositeOperation() { return compositeOperation; },
+      set globalCompositeOperation(value: GlobalCompositeOperation) { compositeOperation = value; if (value === 'destination-in') calls.push('mask-mode'); },
+      fillRect: vi.fn(() => calls.push('background')),
+      save: vi.fn(() => compositeStack.push(compositeOperation)),
+      restore: vi.fn(() => { compositeOperation = compositeStack.pop() ?? 'source-over'; }),
+      beginPath: vi.fn(),
       rect: vi.fn(() => calls.push('clip-region')), clip: vi.fn(() => calls.push('clip')),
       drawImage: vi.fn(() => calls.push('draw-image')), fillText: vi.fn(() => calls.push('text')),
     } as unknown as CanvasRenderingContext2D;
@@ -29,7 +36,10 @@ describe('PNG composition', () => {
     expect(canvas.height).toBe(1125);
     expect(canvas.width / canvas.height).toBe(2 / 3);
     expect(calls.indexOf('clip')).toBeLessThan(calls.lastIndexOf('draw-image'));
-    expect(context.drawImage).toHaveBeenCalledTimes(2);
+    expect(context.drawImage).toHaveBeenCalledTimes(3);
     expect(context.fillText).toHaveBeenCalledTimes(3);
+    expect(compositeOperation).toBe('source-over');
+    expect(calls.indexOf('mask-mode')).toBeGreaterThan(calls.lastIndexOf('text'));
+    expect(calls.indexOf('mask-mode')).toBeLessThan(calls.lastIndexOf('draw-image'));
   });
 });

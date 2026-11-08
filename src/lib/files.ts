@@ -1,4 +1,5 @@
 const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
+const urlImageCache = new Map<string, Promise<HTMLImageElement>>();
 
 export function validateImageFile(file: File, kind: 'frame' | 'illustration'): void {
   if (!file.size) throw new Error('O arquivo está vazio.');
@@ -22,10 +23,17 @@ export function imageFromBlob(blob: Blob): Promise<HTMLImageElement> {
 }
 
 export function imageFromUrl(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
+  const cached = urlImageCache.get(src);
+  if (cached) return cached;
+  const promise = new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
     image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error(`Não foi possível carregar a moldura padrão (${src}).`));
+    image.onerror = () => {
+      urlImageCache.delete(src);
+      reject(new Error(`Não foi possível carregar o recurso do template (${src}).`));
+    };
     image.src = src;
   });
+  urlImageCache.set(src, promise);
+  return promise;
 }

@@ -46,6 +46,15 @@ export async function composeCard(options: ComposeOptions): Promise<HTMLCanvasEl
   drawLabel(context, card.title, template.text.title);
   const reference = card.bibleReference.trim() || 'Referência bíblica pendente';
   drawLabel(context, reference, template.text.reference);
+
+  const outerMask = await imageFromUrl(template.outerMask.path);
+  if (outerMask.naturalWidth !== canvas.width || outerMask.naturalHeight !== canvas.height) {
+    throw new Error(`A máscara ${template.outerMask.version} não corresponde à resolução do template.`);
+  }
+  context.save();
+  context.globalCompositeOperation = 'destination-in';
+  context.drawImage(outerMask, 0, 0, canvas.width, canvas.height);
+  context.restore();
   return canvas;
 }
 

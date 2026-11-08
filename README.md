@@ -35,7 +35,7 @@ Cartas marcadas como **Aprovada** não aceitam substituição de ilustração at
 
 ## Template
 
-`src/template.ts` contém a resolução de trabalho (750 × 1125 px, proporção 2:3), a região da imagem, as coordenadas de texto, fontes, cores e limites de largura. Esses pixels são valores provisórios para desenvolvimento e **não representam dimensões físicas de impressão nem aprovação visual**. `public/template/moldura-provisoria.png` é apenas uma guia geométrica simples. Ajuste o template com a moldura definitiva e aprovação visual antes de produzir cartas finais.
+`src/template.ts` contém a resolução de trabalho (750 × 1125 px, proporção 2:3), a região da imagem, as coordenadas de texto, fontes, cores, limites de largura e a versão/caminho da máscara alfa externa. A máscara fixa `rounded-2-3-r48-v1` é aplicada após imagem, moldura e textos, preservando transparência real nos cantos arredondados. Esses pixels são valores provisórios para desenvolvimento e **não representam dimensões físicas de impressão nem aprovação visual**. `public/template/moldura-provisoria.png` é apenas uma guia geométrica simples. Ajuste o template com a moldura definitiva e aprovação visual antes de produzir cartas finais.
 
 ## Testes
 
